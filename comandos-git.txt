@@ -1,0 +1,265 @@
+//Configuación proxy
+git config --global http.proxy http://proxy.lcc.uma.es:3128 
+//creamos un nuevo directorio en el cual guardaremos todo lo que hagamos en github y no metemos en él
+mkdir GitHub
+cd GitHub
+//Clonamos el repositorio  
+git clone https://github.com/Ocnarf2070/umafactorial.git
+//nos metemos en el repositorio
+cd umafactorial
+//configuramos el nombre de usuario y el email
+git config user.name Ocnarf2070
+git config user.email francogonzalezsanchez@alu.uma.es
+//creamos el archivo factoral.java con el texto respectivo, el cual lo agregaremos en pantalla despues de ejecutar el cat
+cat > factorial.java
+import java.util.Scanner;
+
+public class factorial {
+	
+	public static void main(String []args) {
+		Scanner scanInput = new Scanner(System.in);
+		System.out.print("Introduzca un numero: ");
+		long num = scanInput.nextLong();
+		long fac = 1;
+		for (long i=1; i<=num; ++i) {
+			fac = fac * i;
+		}
+		System.out.println("El factorial de "+num+" es "+fac);
+		scanInput.close();
+	}
+
+}
+
+^D
+//Refactorizamos el repositorio y lo añadimos 
+git add factorial.java
+git commit -m "implementacion inicial"
+//Modificamos el programa con el texto que aparece a continuacion, ya que queremos separa los metodos del main
+vi factorial.java
+import java.util.Scanner;
+
+public class factorial {
+	
+	public static long fact(long num) {
+		long fac = 1;
+		for (long i=1; i<=num; ++i) {
+			fac = fac * i;
+		}
+		return fac;
+	}
+	
+	public static void main(String []args) {
+		Scanner scanInput = new Scanner(System.in);
+		System.out.print("Introduzca un numero: ");
+		long num = scanInput.nextLong();
+		
+		long fac = fact(num);
+		
+		System.out.println("El factorial de "+num+" es "+fac);
+		scanInput.close();
+	}
+
+}
+
+//Refactorizamos el repositorio y lo añadimos 
+git add factorial.java
+git commit -m "refactorizacion"
+//Enviamos los cambios a la rama actual, la master, al repositorio de GitHub
+git push origin master
+//Para no modificar el archivo original, creamos una nueva rama
+git checkout -b recursivo
+//Modificamos el archivo con el codigo que aparece abajo para que el factorial sea recursivo
+vi factorial.java
+public static long fact(long num) {
+		if (num<=0) {
+			return 1;
+		} else {
+			return num*fact(num-1);
+		}
+	}
+
+//Refactorizamos la rama y lo añadimos
+git add factorial.java
+git commit -m "implementacion recursiva"
+//Subimos los cambios de la raa para que sea reviado por el departamento de calidad
+git push origin recursivo
+//volvemos a la rama maestra
+git checkout master
+//modificamos el codigo ya que da resultados erroneos con numeros negativos con las siguiente modificacion
+vi factorial.java
+public static void main(String []args) {
+		Scanner scanInput = new Scanner(System.in);
+		System.out.print("Introduzca un numero: ");
+		long num = scanInput.nextLong();
+		
+		if (num<0) {
+			System.out.println("El factorial no esta definido" 
++ " para numeros negativos");
+		} else {
+			long fac = fact(num);
+			
+			System.out.println("El factorial de "+num+" es "+fac);
+		}
+		
+		scanInput.close();
+	}
+
+//Refactorizamos la rama maestra y lo añadimos
+git add factorial.java
+git commit -m "correccion numeros negativos"
+//enviamos los cambios hechos
+git push origin master
+//volvemos a la rama recursiva para modificar el codigo en el motodo fact() en if(num<=0) a  if(num<=1)
+git checkout recursivo
+vi factorial.java
+//Refactorizamos la rama recursiva y lo añadimos
+git add factorial.java
+git commit -m "optimizacion"
+//volvemos a la rama maestra y mezclamos los cambios de la rma recursiva con la rama maestra
+git checkout master
+git merge recursivo
+//ceamos otra rama para modificar el programa y nos metemos en ella
+git checkout -b refacIO
+//cambiamos parte del codigo por el siguiente
+vi factorial.java
+public static long getNumber() {
+		Scanner scanInput = new Scanner(System.in);
+		System.out.print("Introduzca un numero: ");
+		long num = scanInput.nextLong();
+		scanInput.close();
+		return num;
+	}
+	
+	public static void main(String []args) {
+		long num = getNumber();
+		
+		if (num<0) {
+			System.out.println("El factorial no esta definido" + 
+" para numeros negativos");
+		} else {
+			long fac = fact(num);
+			
+			System.out.println("El factorial de "+num+" es "+fac);
+		}
+	}
+
+//Refactorizamos la rama refecIO y lo añadimos
+git add factorial.java
+git commit -m "refactorizacion de metodo de entrada"
+//lo modificamos de nuevo
+vi factorial.java
+	public static void showFac(long num) {
+		if (num<0) {
+			System.out.println("El factorial no esta definido" + 
+" para numeros negativos");
+		} else {
+			long fac = fact(num);
+			
+			System.out.println("El factorial de "+num+" es "+fac);
+		}
+	}
+	
+	public static void main(String []args) {
+		long num = getNumber();
+		
+		showFac(num);
+	}
+//Hay un problema y no es posible hacer el commit, por lo tanto guardaos temporalmente este cambio
+git stash
+//Cambiamos a la rama maestra para solucionar el problema
+git checkout master
+//Modificamos el codigo de la rama maestra por el siguiente codigo, ya que no funciona con numero mayores de 20
+vi factorial.java
+
+import java.math.BigInteger;
+import java.util.Scanner;
+
+public class factorial {
+	
+	public static BigInteger fact(BigInteger num) {
+		if (num.compareTo(BigInteger.ONE)<=0) {
+			return BigInteger.ONE;
+		} else {
+			return num.multiply(fact(num.subtract(BigInteger.ONE)));
+		}
+	}
+	
+	public static void main(String []args) {
+		Scanner scanInput = new Scanner(System.in);
+		System.out.print("Introduzca un numero: ");
+		BigInteger num = BigInteger.valueOf(scanInput.nextLong());
+		
+		if (num.compareTo(BigInteger.ZERO)<0) {
+			System.out.println("El factorial no esta definido" 
+                         + " para numeros negativos");
+		} else {
+			BigInteger fac = fact(num);
+			
+			System.out.println("El factorial de "+num+" es "+fac);
+		}
+    
+		scanInput.close();
+	}
+
+}
+
+//Refactorizamos la rama maestra y lo añadimos
+git add factorial.java
+git commit -m "cambio de long a BigInteger"
+//Volvemos a la rema refacIO y recuperamos el trabajo que hemos guardado temporalmente
+git checkout refacIO
+git stash pop
+//Refactorizamos la rama refacIO y lo añadimos
+git add factorial.java
+git commit -m "refactorizacion de metodo de salida"
+//Cambiamos a la rama maestra y lo mezclamos con la anterior
+git checkout master
+git merge refacIO
+//Nos salta n error, por lo tanto vemos donde estan los errores y lo corregimos, el cual nos quedara un codigo como el siguiente
+cat factorial.java
+vi factorial.java
+import java.math.BigInteger;
+import java.util.Scanner;
+
+public class factorial {
+	
+	public static BigInteger fact(BigInteger num) {
+		if (num.compareTo(BigInteger.ONE)<=0) {
+			return BigInteger.ONE;
+		} else {
+			return num.multiply(fact(num.subtract(BigInteger.ONE)));
+		}
+	}
+	
+	public static BigInteger getNumber() {
+		Scanner scanInput = new Scanner(System.in);
+		System.out.print("Introduzca un numero: ");
+		BigInteger num = BigInteger.valueOf(scanInput.nextLong());
+		scanInput.close();
+		return num;
+	}
+	
+	public static void showFac(BigInteger num) {
+		if (num.compareTo(BigInteger.ZERO)<0) {
+			System.out.println("El factorial no esta definido" + 
+" para numeros negativos");
+		} else {
+			BigInteger fac = fact(num);
+			
+			System.out.println("El factorial de "+num+" es "+fac);
+		}
+	}
+	
+	public static void main(String []args) {
+		BigInteger num = getNumber();
+		
+		showFac(num);
+	}
+
+}
+
+//Refactorizamos la rama maestra y lo añadimos
+git add factorial.java
+git commit -m mensaje "mezcla de rama refacIO"
+
+
